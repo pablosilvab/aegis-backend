@@ -33,7 +33,7 @@ export class GroqAnalysisService implements IAnalysisService {
     }
 
     try {
-      const prompt = PromptBuilder.buildAnalysisPrompt(input);
+      const prompt = PromptBuilder.buildAnalysisPrompt(input, this.config.enableFewShot !== false);
 
       const response = await this.client.chat.completions.create({
         model: this.config.model,
