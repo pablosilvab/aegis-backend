@@ -94,10 +94,26 @@ export class GroqAnalysisService implements IAnalysisService {
         throw new Error('Invalid response structure from LLM');
       }
 
-      // Validar status
+      // Validar status y mapear valores comunes incorrectos
       const validStatuses = ['on_track', 'at_risk', 'blocked', 'in_progress'];
-      if (!validStatuses.includes(parsed.status)) {
-        throw new Error(`Invalid status: ${parsed.status}`);
+      let status = parsed.status;
+      
+      if (!validStatuses.includes(status)) {
+        // Intentar mapear valores comunes incorrectos
+        const statusMap: Record<string, string> = {
+          'pending': 'in_progress',
+          'completed': 'on_track',
+          'done': 'on_track',
+          'cancelled': 'blocked',
+          'failed': 'blocked',
+        };
+        
+        if (statusMap[status.toLowerCase()]) {
+          this.logger.warn(`LLM devolvió status inválido "${status}", mapeado a "${statusMap[status.toLowerCase()]}"`);
+          status = statusMap[status.toLowerCase()];
+        } else {
+          throw new Error(`Invalid status: ${parsed.status}. Debe ser uno de: ${validStatuses.join(', ')}`);
+        }
       }
 
       // Validar confidenceLevel
@@ -113,7 +129,7 @@ export class GroqAnalysisService implements IAnalysisService {
       }
 
       return {
-        status: parsed.status,
+        status: status,
         confidenceLevel: parsed.confidenceLevel,
         reason: parsed.reason.trim(),
         recommendation: parsed.recommendation.trim(),
