@@ -34,6 +34,14 @@ export class GroqAnalysisService implements IAnalysisService {
 
     try {
       const prompt = PromptBuilder.buildAnalysisPrompt(input, this.config.enableFewShot !== false);
+      
+      // TEMPORAL: Log para verificar RAG
+      if (input.previousAnalyses && input.previousAnalyses.length > 0) {
+        this.logger.log(`🔍 RAG ACTIVO: Incluyendo ${input.previousAnalyses.length} análisis anteriores`);
+        this.logger.debug('Prompt completo:', prompt.substring(0, 500) + '...'); // Primeros 500 chars
+      } else {
+        this.logger.log('⚠️ RAG NO ACTIVO: No hay análisis anteriores');
+      }
 
       const response = await this.client.chat.completions.create({
         model: this.config.model,

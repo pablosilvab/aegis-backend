@@ -9,6 +9,14 @@ export interface AnalysisInput {
       timestamp: Date;
       metadata?: Record<string, unknown>;
     }>;
+    
+    previousAnalyses?: Array<{
+      status: string;
+      confidenceLevel: number;
+      reason: string;
+      recommendation: string;
+      timestamp: Date;
+    }>;
   }
   
   export interface AnalysisOutput {

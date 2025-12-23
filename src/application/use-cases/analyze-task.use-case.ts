@@ -34,6 +34,20 @@ export class AnalyzeTaskUseCase {
     // Obtener eventos de la tarea
     const events = await this.taskEventRepository.findByTaskId(id);
 
+    // NUEVO: Obtener análisis anteriores de esta tarea (para RAG)
+    const previousAnalyses = await this.taskAnalysisRepository.findByTaskId(id);
+    // Ordenar por timestamp descendente y tomar los últimos 3
+    const recentAnalyses = previousAnalyses
+      .sort((a, b) => b.getTimestamp().getTime() - a.getTimestamp().getTime())
+      .slice(0, 3)
+      .map((analysis) => ({
+        status: analysis.getStatus().getValue(),
+        confidenceLevel: analysis.getConfidenceLevel().getValue(),
+        reason: analysis.getReason(),
+        recommendation: analysis.getRecommendation(),
+        timestamp: analysis.getTimestamp(),
+      }));
+
     // Construir input para el análisis
     const analysisInput: AnalysisInput = {
       taskTitle: task.getTitle(),
@@ -46,6 +60,8 @@ export class AnalyzeTaskUseCase {
         timestamp: event.getTimestamp(),
         metadata: event.getMetadata(),
       })),
+      // NUEVO: incluir análisis anteriores
+      previousAnalyses: recentAnalyses.length > 0 ? recentAnalyses : undefined,
     };
 
     // Llamar al servicio de análisis
