@@ -104,6 +104,125 @@ export interface FewShotExample {
             recommendation: 'Completar el testing y documentar las optimizaciones realizadas. Considerar aplicar las mismas técnicas a otras áreas del sistema si es aplicable.',
           },
         },
+        {
+          input: {
+            taskTitle: 'Configurar pipeline CI/CD para microservicio',
+            taskDescription: 'Setup de GitHub Actions para build, test y deploy automático',
+            taskStatus: 'in_progress',
+            events: [
+              {
+                type: 'comment',
+                content: 'Configurado build y test, fallando en etapa de deploy',
+                timestamp: '2024-12-10T14:00:00Z',
+              },
+              {
+                type: 'comment',
+                content: 'Problema con permisos de AWS, esperando acceso',
+                timestamp: '2024-12-11T09:30:00Z',
+              },
+            ],
+            dueDate: '2024-12-18T00:00:00Z',
+          },
+          output: {
+            status: 'blocked',
+            confidenceLevel: 85,
+            reason: 'La tarea está bloqueada por falta de permisos de AWS. El pipeline está configurado pero no puede completarse sin acceso a la infraestructura. La fecha de vencimiento está próxima (7 días).',
+            recommendation: 'Escalar inmediatamente la solicitud de permisos AWS. Si no se resuelve en 24 horas, considerar alternativas temporales o solicitar extensión. Documentar el bloqueo para evitar retrasos futuros.',
+          },
+        },
+        {
+          input: {
+            taskTitle: 'Integrar API de pagos de terceros',
+            taskDescription: 'Integración con servicio de pagos externo para procesar transacciones',
+            taskStatus: 'in_progress',
+            events: [
+              {
+                type: 'comment',
+                content: 'API documentación recibida, iniciando integración',
+                timestamp: '2024-12-05T10:00:00Z',
+              },
+              {
+                type: 'comment',
+                content: 'Problema: la API tiene rate limits más restrictivos de lo esperado',
+                timestamp: '2024-12-07T15:20:00Z',
+              },
+              {
+                type: 'comment',
+                content: 'Implementando sistema de cache y retry logic',
+                timestamp: '2024-12-09T11:00:00Z',
+              },
+            ],
+            dueDate: '2024-12-20T00:00:00Z',
+          },
+          output: {
+            status: 'at_risk',
+            confidenceLevel: 70,
+            reason: 'La integración está en progreso pero se descubrió un problema con rate limits que requiere trabajo adicional (cache y retry). Aunque hay progreso, la complejidad aumentó y podría retrasar la entrega.',
+            recommendation: 'Validar que la solución de cache y retry sea suficiente antes de continuar. Considerar contactar al proveedor para discutir rate limits o alternativas. Monitorear de cerca el progreso en los próximos días.',
+          },
+        },
+        {
+          input: {
+            taskTitle: 'Investigar migración a GraphQL',
+            taskDescription: 'POC para evaluar migración de REST a GraphQL',
+            taskStatus: 'in_progress',
+            events: [
+              {
+                type: 'comment',
+                content: 'Revisando documentación y casos de uso',
+                timestamp: '2024-12-01T09:00:00Z',
+              },
+              {
+                type: 'comment',
+                content: 'Implementando POC básico',
+                timestamp: '2024-12-03T14:00:00Z',
+              },
+              {
+                type: 'comment',
+                content: 'POC completado, evaluando resultados y documentando',
+                timestamp: '2024-12-08T16:30:00Z',
+              },
+            ],
+            dueDate: '2024-12-15T00:00:00Z',
+          },
+          output: {
+            status: 'on_track',
+            confidenceLevel: 80,
+            reason: 'La tarea de investigación muestra progreso constante. El POC está completado y en fase de evaluación. La fecha de vencimiento está próxima (7 días) pero el trabajo principal está hecho.',
+            recommendation: 'Completar la documentación de resultados y recomendaciones. Presentar hallazgos al equipo para decisión sobre migración. Si se requiere más tiempo, es aceptable dado que es investigación.',
+          },
+        },
+        {
+          input: {
+            taskTitle: 'Corregir bug crítico en procesamiento de pagos',
+            taskDescription: 'Bug que causa pérdida de transacciones en casos edge',
+            taskStatus: 'in_progress',
+            events: [
+              {
+                type: 'comment',
+                content: 'Bug reportado en producción, investigando',
+                timestamp: '2024-12-10T08:00:00Z',
+              },
+              {
+                type: 'comment',
+                content: 'Root cause identificado: race condition en procesamiento concurrente',
+                timestamp: '2024-12-10T12:00:00Z',
+              },
+              {
+                type: 'comment',
+                content: 'Fix implementado, en testing',
+                timestamp: '2024-12-10T18:00:00Z',
+              },
+            ],
+            dueDate: '2024-12-11T00:00:00Z',
+          },
+          output: {
+            status: 'at_risk',
+            confidenceLevel: 75,
+            reason: 'Bug crítico en producción con fix implementado pero aún en testing. La fecha de vencimiento es inminente (1 día) y requiere validación exhaustiva antes de deploy a producción.',
+            recommendation: 'Priorizar testing exhaustivo del fix, especialmente casos edge y concurrencia. Considerar hotfix si es necesario. Validar que no haya regresiones antes de deploy a producción.',
+          },
+        },
       ];
     }
   }
