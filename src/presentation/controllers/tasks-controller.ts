@@ -13,6 +13,7 @@ import {
   import { GetTaskByIdUseCase } from '@application/use-cases/get-task-by-id.use-case';
   import { ListTasksUseCase } from '@application/use-cases/list-tasks.use-case';
   import { UpdateTaskUseCase } from '@application/use-cases/update-task.use-case';
+  import { DeleteTaskUseCase } from '@application/use-cases/delete-task.use-case';
   import { CreateTaskDto } from '../dto/create-task.dto';
   import { UpdateTaskDto } from '../dto/update-task.dto';
   
@@ -23,6 +24,7 @@ import {
       private readonly getTaskByIdUseCase: GetTaskByIdUseCase,
       private readonly listTasksUseCase: ListTasksUseCase,
       private readonly updateTaskUseCase: UpdateTaskUseCase,
+      private readonly deleteTaskUseCase: DeleteTaskUseCase,
     ) {}
   
     @Post()
@@ -83,7 +85,7 @@ import {
         status: updateTaskDto.status,
         dueDate: updateTaskDto.dueDate ? new Date(updateTaskDto.dueDate) : undefined,
       });
-  
+
       return {
         id: task.getId().toString(),
         title: task.getTitle(),
@@ -93,5 +95,11 @@ import {
         updatedAt: task.getUpdatedAt(),
         dueDate: task.getDueDate(),
       };
+    }
+
+    @Delete(':id')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async delete(@Param('id') id: string) {
+      await this.deleteTaskUseCase.execute(id);
     }
   }

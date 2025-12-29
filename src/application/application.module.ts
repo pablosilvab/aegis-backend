@@ -11,6 +11,7 @@ import { UpdateTaskUseCase } from './use-cases/update-task.use-case';
 import { RegisterTaskEventUseCase } from './use-cases/register-task-event.use-case';
 import { GetTaskEventsUseCase } from './use-cases/get-task-events.use-case';
 import { AnalyzeTaskUseCase } from './use-cases/analyze-task.use-case';
+import { DeleteTaskUseCase } from './use-cases/delete-task.use-case';
 
 @Module({
   imports: [PersistenceModule, ExternalModule],
@@ -33,6 +34,7 @@ import { AnalyzeTaskUseCase } from './use-cases/analyze-task.use-case';
     GetTaskByIdUseCase,
     ListTasksUseCase,
     UpdateTaskUseCase,
+    DeleteTaskUseCase,
     RegisterTaskEventUseCase,
     GetTaskEventsUseCase,
     AnalyzeTaskUseCase,
@@ -42,6 +44,7 @@ import { AnalyzeTaskUseCase } from './use-cases/analyze-task.use-case';
     GetTaskByIdUseCase,
     ListTasksUseCase,
     UpdateTaskUseCase,
+    DeleteTaskUseCase,
     RegisterTaskEventUseCase,
     GetTaskEventsUseCase,
     AnalyzeTaskUseCase,

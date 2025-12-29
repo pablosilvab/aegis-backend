@@ -6,4 +6,5 @@ export interface ITaskAnalysisRepository {
   findByTaskId(taskId: TaskId): Promise<TaskAnalysis[]>;
   findLatestByTaskId(taskId: TaskId): Promise<TaskAnalysis | null>;
   findById(id: string): Promise<TaskAnalysis | null>;
+  deleteByTaskId(taskId: TaskId): Promise<void>;
 }

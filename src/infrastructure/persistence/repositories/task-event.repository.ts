@@ -34,6 +34,10 @@ export class TaskEventRepository implements ITaskEventRepository {
     return entity ? this.toDomain(entity) : null;
   }
 
+  async deleteByTaskId(taskId: TaskId): Promise<void> {
+    await this.typeOrmRepository.delete({ taskId: taskId.toString() });
+  }
+
   private toEntity(event: TaskEvent): TaskEventEntity {
     const entity = new TaskEventEntity();
     entity.id = event.getId();

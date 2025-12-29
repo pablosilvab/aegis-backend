@@ -42,6 +42,10 @@ export class TaskAnalysisRepository implements ITaskAnalysisRepository {
     return entity ? this.toDomain(entity) : null;
   }
 
+  async deleteByTaskId(taskId: TaskId): Promise<void> {
+    await this.typeOrmRepository.delete({ taskId: taskId.toString() });
+  }
+
   private toEntity(analysis: TaskAnalysis): TaskAnalysisEntity {
     const entity = new TaskAnalysisEntity();
     entity.id = analysis.getId();
