@@ -23,5 +23,6 @@
       "@infrastructure/*": ["src/infrastructure/*"],
       "@presentation/*": ["src/presentation/*"]
     }
-  }
+  },
+  "include": ["src/**/*.ts"]
 }
