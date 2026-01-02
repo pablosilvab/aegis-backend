@@ -4,12 +4,22 @@ import {
     PrimaryColumn,
     CreateDateColumn,
     UpdateDateColumn,
+    ManyToOne,
+    JoinColumn,
   } from 'typeorm';
+  import { UserEntity } from './user.entity';
   
   @Entity('tasks')
   export class TaskEntity {
     @PrimaryColumn('uuid')
     id: string;
+  
+    @Column({ type: 'uuid' })
+    userId: string;
+  
+    @ManyToOne(() => UserEntity)
+    @JoinColumn({ name: 'userId' })
+    user: UserEntity;
   
     @Column({ type: 'varchar', length: 200 })
     title: string;

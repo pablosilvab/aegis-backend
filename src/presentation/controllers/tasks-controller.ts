@@ -30,7 +30,12 @@ import {
     @Post()
     @HttpCode(HttpStatus.CREATED)
     async create(@Body() createTaskDto: CreateTaskDto) {
+      // TODO: Obtener userId del usuario autenticado (Fase 4)
+      // Por ahora usamos un userId temporal para que compile
+      const temporaryUserId = '00000000-0000-0000-0000-000000000000';
+      
       const task = await this.createTaskUseCase.execute({
+        userId: temporaryUserId,
         title: createTaskDto.title,
         description: createTaskDto.description,
         dueDate: createTaskDto.dueDate ? new Date(createTaskDto.dueDate) : undefined,

@@ -40,6 +40,7 @@ export class TaskRepository implements ITaskRepository {
   private toEntity(task: Task): TaskEntity {
     const entity = new TaskEntity();
     entity.id = task.getId().toString();
+    entity.userId = task.getUserId().toString();
     entity.title = task.getTitle();
     entity.description = task.getDescription();
     entity.status = task.getStatus().getValue();
@@ -52,6 +53,7 @@ export class TaskRepository implements ITaskRepository {
   private toDomain(entity: TaskEntity): Task {
     return Task.fromPersistence(
       entity.id,
+      entity.userId,
       entity.title,
       entity.description,
       entity.status,

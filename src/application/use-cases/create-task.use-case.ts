@@ -5,6 +5,7 @@ import { ITaskRepository } from '@domain/interfaces/task.repository.interface';
 import { randomUUID } from 'crypto';
 
 export interface CreateTaskInput {
+  userId: string;
   title: string;
   description: string;
   dueDate?: Date;
@@ -21,6 +22,7 @@ export class CreateTaskUseCase {
     const taskId = randomUUID();
     const task = Task.create(
       taskId,
+      input.userId,
       input.title,
       input.description,
       input.dueDate,

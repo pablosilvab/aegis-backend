@@ -4,6 +4,7 @@ import { ExternalModule } from '@infrastructure/external/external.module';
 import { TaskRepository } from '@infrastructure/persistence/repositories/task.repository';
 import { TaskEventRepository } from '@infrastructure/persistence/repositories/task-event.repository';
 import { TaskAnalysisRepository } from '@infrastructure/persistence/repositories/task-analysis.repository';
+import { UserRepository } from '@infrastructure/persistence/repositories/user.repository';
 import { CreateTaskUseCase } from './use-cases/create-task.use-case';
 import { GetTaskByIdUseCase } from './use-cases/get-task-by-id.use-case';
 import { ListTasksUseCase } from './use-cases/list-tasks.use-case';
@@ -28,6 +29,10 @@ import { DeleteTaskUseCase } from './use-cases/delete-task.use-case';
     {
       provide: 'ITaskAnalysisRepository',
       useExisting: TaskAnalysisRepository,
+    },
+    {
+      provide: 'IUserRepository',
+      useExisting: UserRepository,
     },
     // Casos de uso
     CreateTaskUseCase,

@@ -1,9 +1,11 @@
 import { TaskId } from '../value-objects/task-id.vo';
 import { TaskStatus, TaskStatusEnum } from '../value-objects/task-status.vo';
+import { UserId } from '../value-objects/user-id.vo';
 
 export class Task {
   private constructor(
     private readonly id: TaskId,
+    private readonly userId: UserId,
     private title: string,
     private description: string,
     private status: TaskStatus,
@@ -16,12 +18,14 @@ export class Task {
 
   static create(
     id: string,
+    userId: string,
     title: string,
     description: string,
     dueDate?: Date,
   ): Task {
     return new Task(
       new TaskId(id),
+      new UserId(userId),
       title,
       description,
       new TaskStatus(TaskStatusEnum.PENDING),
@@ -33,6 +37,7 @@ export class Task {
 
   static fromPersistence(
     id: string,
+    userId: string,
     title: string,
     description: string,
     status: string,
@@ -42,6 +47,7 @@ export class Task {
   ): Task {
     return new Task(
       new TaskId(id),
+      new UserId(userId),
       title,
       description,
       new TaskStatus(status),
@@ -63,6 +69,10 @@ export class Task {
   // Getters
   getId(): TaskId {
     return this.id;
+  }
+
+  getUserId(): UserId {
+    return this.userId;
   }
 
   getTitle(): string {
