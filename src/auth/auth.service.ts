@@ -2,7 +2,6 @@ import { Injectable, Inject, UnauthorizedException, ConflictException } from '@n
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
-import { OAuth2Client } from 'google-auth-library';
 import { User } from '@domain/entities/user.entity';
 import { UserId } from '@domain/value-objects/user-id.vo';
 import { IUserRepository } from '@domain/interfaces/user.repository.interface';
@@ -20,16 +19,12 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    // Verificar si el usuario ya existe
     const existingUser = await this.userRepository.findByEmail(registerDto.email);
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
     }
-
-    // Hashear password
     const passwordHash = await bcrypt.hash(registerDto.password, 12);
 
-    // Crear usuario
     const userId = randomUUID();
     const user = User.create(
       userId,
@@ -38,10 +33,8 @@ export class AuthService {
       passwordHash,
     );
 
-    // Guardar usuario
     const savedUser = await this.userRepository.save(user);
 
-    // Generar tokens
     const tokens = await this.generateTokens(savedUser);
 
     return {
@@ -56,13 +49,11 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
-    // Buscar usuario por email
     const user = await this.userRepository.findByEmail(loginDto.email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Verificar password
     const passwordHash = user.getPasswordHash();
     if (!passwordHash) {
       throw new UnauthorizedException('Invalid credentials');
@@ -73,7 +64,6 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Generar tokens
     const tokens = await this.generateTokens(user);
 
     return {
@@ -88,52 +78,52 @@ export class AuthService {
   }
 
   async loginWithGoogle(googleLoginDto: GoogleLoginDto): Promise<AuthResponseDto> {
-    // Validar token de Google (opcional pero recomendado)
-    if (process.env.GOOGLE_CLIENT_ID) {
-      try {
-        const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-        const ticket = await client.verifyIdToken({
-          idToken: googleLoginDto.googleToken,
-          audience: process.env.GOOGLE_CLIENT_ID,
-        });
-        const payload = ticket.getPayload();
-        
-        if (!payload || payload.sub !== googleLoginDto.googleId) {
-          throw new UnauthorizedException('Invalid Google token');
-        }
-      } catch (error) {
-        throw new UnauthorizedException('Failed to verify Google token');
+    try {
+      const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: {
+          Authorization: `Bearer ${googleLoginDto.googleToken}`,
+        },
+      });
+
+      if (!userInfoResponse.ok) {
+        throw new UnauthorizedException('Invalid Google access token');
       }
+
+      const googleUserInfo = await userInfoResponse.json();
+
+      if (googleUserInfo.id !== googleLoginDto.googleId || googleUserInfo.email !== googleLoginDto.email) {
+        throw new UnauthorizedException('Google token information mismatch');
+      }
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new UnauthorizedException('Failed to verify Google access token');
     }
 
-    // Buscar usuario por googleId
     let user = await this.userRepository.findByGoogleId(googleLoginDto.googleId);
 
     if (!user) {
-      // Si no existe por googleId, buscar por email
       user = await this.userRepository.findByEmail(googleLoginDto.email);
 
       if (user) {
-        // Si existe por email pero no tiene googleId, vincular cuenta
         if (!user.getGoogleId()) {
           user.linkGoogleAccount(googleLoginDto.googleId);
           user = await this.userRepository.save(user);
         }
       } else {
-        // Crear nuevo usuario desde Google
         const userId = randomUUID();
         user = User.create(
           userId,
           googleLoginDto.email,
           googleLoginDto.name,
-          undefined, // Sin password
+          undefined,
           googleLoginDto.googleId,
         );
         user = await this.userRepository.save(user);
       }
     }
 
-    // Generar tokens
     const tokens = await this.generateTokens(user);
 
     return {
