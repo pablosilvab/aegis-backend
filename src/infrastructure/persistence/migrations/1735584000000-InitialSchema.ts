@@ -4,9 +4,9 @@ export class InitialSchema1735584000000 implements MigrationInterface {
   name = 'InitialSchema1735584000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Crear tabla tasks
+    // Crear tabla tasks (si no existe)
     await queryRunner.query(`
-      CREATE TABLE "tasks" (
+      CREATE TABLE IF NOT EXISTS "tasks" (
         "id" uuid NOT NULL,
         "title" varchar(200) NOT NULL,
         "description" text NOT NULL,
@@ -18,9 +18,9 @@ export class InitialSchema1735584000000 implements MigrationInterface {
       )
     `);
 
-    // Crear tabla task_events
+    // Crear tabla task_events (si no existe)
     await queryRunner.query(`
-      CREATE TABLE "task_events" (
+      CREATE TABLE IF NOT EXISTS "task_events" (
         "id" uuid NOT NULL,
         "taskId" uuid NOT NULL,
         "type" varchar(50) NOT NULL,
@@ -31,19 +31,27 @@ export class InitialSchema1735584000000 implements MigrationInterface {
       )
     `);
 
-    // Crear foreign key para task_events
+    // Crear foreign key para task_events (si no existe)
     await queryRunner.query(`
-      ALTER TABLE "task_events" 
-      ADD CONSTRAINT "FK_task_events_taskId" 
-      FOREIGN KEY ("taskId") 
-      REFERENCES "tasks"("id") 
-      ON DELETE CASCADE 
-      ON UPDATE NO ACTION
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint 
+          WHERE conname = 'FK_task_events_taskId'
+        ) THEN
+          ALTER TABLE "task_events" 
+          ADD CONSTRAINT "FK_task_events_taskId" 
+          FOREIGN KEY ("taskId") 
+          REFERENCES "tasks"("id") 
+          ON DELETE CASCADE 
+          ON UPDATE NO ACTION;
+        END IF;
+      END $$;
     `);
 
-    // Crear tabla task_analyses
+    // Crear tabla task_analyses (si no existe)
     await queryRunner.query(`
-      CREATE TABLE "task_analyses" (
+      CREATE TABLE IF NOT EXISTS "task_analyses" (
         "id" uuid NOT NULL,
         "taskId" uuid NOT NULL,
         "status" varchar(50) NOT NULL,
@@ -56,14 +64,22 @@ export class InitialSchema1735584000000 implements MigrationInterface {
       )
     `);
 
-    // Crear foreign key para task_analyses
+    // Crear foreign key para task_analyses (si no existe)
     await queryRunner.query(`
-      ALTER TABLE "task_analyses" 
-      ADD CONSTRAINT "FK_task_analyses_taskId" 
-      FOREIGN KEY ("taskId") 
-      REFERENCES "tasks"("id") 
-      ON DELETE CASCADE 
-      ON UPDATE NO ACTION
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint 
+          WHERE conname = 'FK_task_analyses_taskId'
+        ) THEN
+          ALTER TABLE "task_analyses" 
+          ADD CONSTRAINT "FK_task_analyses_taskId" 
+          FOREIGN KEY ("taskId") 
+          REFERENCES "tasks"("id") 
+          ON DELETE CASCADE 
+          ON UPDATE NO ACTION;
+        END IF;
+      END $$;
     `);
   }
 

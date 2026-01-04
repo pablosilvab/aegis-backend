@@ -1,6 +1,7 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 function getCorsOrigins(): string[] {
   const origins: string[] = [];
@@ -53,6 +54,10 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // Configurar guard global de JWT
+  const reflector = app.get(Reflector);
+  app.useGlobalGuards(new JwtAuthGuard(reflector));
 
   app.setGlobalPrefix('api');
 

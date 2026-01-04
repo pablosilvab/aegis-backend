@@ -53,10 +53,14 @@ import { DeleteTaskUseCase } from './use-cases/delete-task.use-case';
     RegisterTaskEventUseCase,
     GetTaskEventsUseCase,
     AnalyzeTaskUseCase,
-    // Exportar repositorios para que estén disponibles en PresentationModule
+    // Exportar repositorios para que estén disponibles en otros módulos
     {
       provide: 'ITaskAnalysisRepository',
       useExisting: TaskAnalysisRepository,
+    },
+    {
+      provide: 'IUserRepository',
+      useExisting: UserRepository,
     },
   ],
 })
