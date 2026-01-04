@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '@domain/entities/task.entity';
 import { TaskId } from '@domain/value-objects/task-id.vo';
+import { UserId } from '@domain/value-objects/user-id.vo';
 import { ITaskRepository } from '@domain/interfaces/task.repository.interface';
 import { TaskEntity } from '../entities/task.entity';
 
@@ -28,6 +29,14 @@ export class TaskRepository implements ITaskRepository {
 
   async findAll(): Promise<Task[]> {
     const entities = await this.typeOrmRepository.find({
+      order: { createdAt: 'DESC' },
+    });
+    return entities.map((entity) => this.toDomain(entity));
+  }
+
+  async findByUserId(userId: UserId): Promise<Task[]> {
+    const entities = await this.typeOrmRepository.find({
+      where: { userId: userId.toString() },
       order: { createdAt: 'DESC' },
     });
     return entities.map((entity) => this.toDomain(entity));

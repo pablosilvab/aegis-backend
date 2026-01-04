@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 import { ITaskRepository } from '@domain/interfaces/task.repository.interface';
 import { ITaskEventRepository } from '@domain/interfaces/task-event.repository.interface';
@@ -16,13 +16,19 @@ export class DeleteTaskUseCase {
     private readonly taskAnalysisRepository: ITaskAnalysisRepository,
   ) {}
 
-  async execute(taskId: string): Promise<void> {
+  async execute(taskId: string, userId: string): Promise<void> {
     const id = new TaskId(taskId);
     
     // Verificar que la tarea existe
     const task = await this.taskRepository.findById(id);
     if (!task) {
       throw new NotFoundException(`Task with ID ${taskId} not found`);
+    }
+
+    // Validar que la tarea pertenece al usuario
+    const taskUserId = task.getUserId().toString();
+    if (taskUserId !== userId) {
+      throw new ForbiddenException('You do not have permission to delete this task');
     }
 
     // Eliminar eventos relacionados

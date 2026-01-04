@@ -16,6 +16,7 @@ import {
   import { DeleteTaskUseCase } from '@application/use-cases/delete-task.use-case';
   import { CreateTaskDto } from '../dto/create-task.dto';
   import { UpdateTaskDto } from '../dto/update-task.dto';
+  import { CurrentUser } from '../../auth/decorators/current-user.decorator';
   
   @Controller('tasks')
   export class TasksController {
@@ -29,13 +30,12 @@ import {
   
     @Post()
     @HttpCode(HttpStatus.CREATED)
-    async create(@Body() createTaskDto: CreateTaskDto) {
-      // TODO: Obtener userId del usuario autenticado (Fase 4)
-      // Por ahora usamos un userId temporal para que compile
-      const temporaryUserId = '00000000-0000-0000-0000-000000000000';
-      
+    async create(
+      @Body() createTaskDto: CreateTaskDto,
+      @CurrentUser() user: { userId: string; email: string },
+    ) {
       const task = await this.createTaskUseCase.execute({
-        userId: temporaryUserId,
+        userId: user.userId,
         title: createTaskDto.title,
         description: createTaskDto.description,
         dueDate: createTaskDto.dueDate ? new Date(createTaskDto.dueDate) : undefined,
@@ -53,8 +53,8 @@ import {
     }
   
     @Get()
-    async findAll() {
-      const tasks = await this.listTasksUseCase.execute();
+    async findAll(@CurrentUser() user: { userId: string; email: string }) {
+      const tasks = await this.listTasksUseCase.execute(user.userId);
       return tasks.map((task) => ({
         id: task.getId().toString(),
         title: task.getTitle(),
@@ -68,8 +68,11 @@ import {
     }
   
     @Get(':id')
-    async findOne(@Param('id') id: string) {
-      const task = await this.getTaskByIdUseCase.execute(id);
+    async findOne(
+      @Param('id') id: string,
+      @CurrentUser() user: { userId: string; email: string },
+    ) {
+      const task = await this.getTaskByIdUseCase.execute(id, user.userId);
       return {
         id: task.getId().toString(),
         title: task.getTitle(),
@@ -83,8 +86,12 @@ import {
     }
   
     @Patch(':id')
-    async update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-      const task = await this.updateTaskUseCase.execute(id, {
+    async update(
+      @Param('id') id: string,
+      @Body() updateTaskDto: UpdateTaskDto,
+      @CurrentUser() user: { userId: string; email: string },
+    ) {
+      const task = await this.updateTaskUseCase.execute(id, user.userId, {
         title: updateTaskDto.title,
         description: updateTaskDto.description,
         status: updateTaskDto.status,
@@ -104,7 +111,10 @@ import {
 
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    async delete(@Param('id') id: string) {
-      await this.deleteTaskUseCase.execute(id);
+    async delete(
+      @Param('id') id: string,
+      @CurrentUser() user: { userId: string; email: string },
+    ) {
+      await this.deleteTaskUseCase.execute(id, user.userId);
     }
   }

@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { Task } from '@domain/entities/task.entity';
 import { TaskId } from '@domain/value-objects/task-id.vo';
 import { TaskStatusEnum } from '@domain/value-objects/task-status.vo';
@@ -18,12 +18,18 @@ export class UpdateTaskUseCase {
     private readonly taskRepository: ITaskRepository,
   ) {}
 
-  async execute(taskId: string, input: UpdateTaskInput): Promise<Task> {
+  async execute(taskId: string, userId: string, input: UpdateTaskInput): Promise<Task> {
     const id = new TaskId(taskId);
     const task = await this.taskRepository.findById(id);
 
     if (!task) {
       throw new NotFoundException(`Task with ID ${taskId} not found`);
+    }
+
+    // Validar que la tarea pertenece al usuario
+    const taskUserId = task.getUserId().toString();
+    if (taskUserId !== userId) {
+      throw new ForbiddenException('You do not have permission to update this task');
     }
 
     if (input.title !== undefined) {
