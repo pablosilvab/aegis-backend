@@ -2,6 +2,7 @@ import { Controller, Post, Body, Get, UseGuards, HttpCode, HttpStatus } from '@n
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { GoogleLoginDto } from './dto/google-login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { Public } from './decorators/public.decorator';
@@ -22,6 +23,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
+  }
+
+  @Post('google')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  async loginWithGoogle(@Body() googleLoginDto: GoogleLoginDto) {
+    return this.authService.loginWithGoogle(googleLoginDto);
   }
 
   @Post('refresh')

@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { TaskEvent } from '@domain/entities/task-event.entity';
 import { EventTypeEnum } from '@domain/value-objects/event-type.vo';
 import { TaskId } from '@domain/value-objects/task-id.vo';
@@ -22,12 +22,18 @@ export class RegisterTaskEventUseCase {
     private readonly taskEventRepository: ITaskEventRepository,
   ) {}
 
-  async execute(input: RegisterTaskEventInput): Promise<TaskEvent> {
+  async execute(input: RegisterTaskEventInput, userId: string): Promise<TaskEvent> {
     const taskId = new TaskId(input.taskId);
     const task = await this.taskRepository.findById(taskId);
 
     if (!task) {
       throw new NotFoundException(`Task with ID ${input.taskId} not found`);
+    }
+
+    // Validar que la tarea pertenece al usuario
+    const taskUserId = task.getUserId().toString();
+    if (taskUserId !== userId) {
+      throw new ForbiddenException('You do not have permission to create events for this task');
     }
 
     const eventId = randomUUID();

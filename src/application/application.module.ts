@@ -55,6 +55,10 @@ import { DeleteTaskUseCase } from './use-cases/delete-task.use-case';
     AnalyzeTaskUseCase,
     // Exportar repositorios para que estén disponibles en otros módulos
     {
+      provide: 'ITaskRepository',
+      useExisting: TaskRepository,
+    },
+    {
       provide: 'ITaskAnalysisRepository',
       useExisting: TaskAnalysisRepository,
     },
