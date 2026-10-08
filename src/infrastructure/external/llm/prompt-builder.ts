@@ -141,20 +141,20 @@ Debes evaluar y devolver uno de estos 4 valores:
 - "blocked": La tarea está bloqueada y no puede avanzar sin intervención
 - "in_progress": La tarea está en progreso activo, sin problemas evidentes aún
 
-Responde ÚNICAMENTE con un JSON válido en este formato exacto:
+Responde ÚNICAMENTE con un JSON válido, con este contenido:
 {
-  "status": "on_track" | "at_risk" | "blocked" | "in_progress",
-  "confidenceLevel": <número entre 0 y 100>,
-  "reason": "<explicación breve del análisis>",
-  "recommendation": "<recomendación específica y accionable>"
+  "status": "on_track",
+  "confidenceLevel": 80,
+  "reason": "La tarea avanza y los eventos recientes muestran progreso.",
+  "recommendation": "Mantener el ritmo y revisar dependencias externas esta semana."
 }
 
 IMPORTANTE:
 - status DEBE ser uno de estos 4 valores EXACTOS: "on_track", "at_risk", "blocked", "in_progress"
 - NO uses el estado de la tarea (${input.taskStatus}) como valor de status
 - confidenceLevel debe ser un número entero entre 0 y 100
-- reason debe ser conciso (máximo 200 palabras)
-- recommendation debe ser específica y accionable (máximo 150 palabras)
+- reason debe ser conciso (máximo 80 palabras)
+- recommendation debe ser específica y accionable (máximo 60 palabras)
 - Responde SOLO con el JSON, sin texto adicional, sin markdown, sin explicaciones`;
   }
 

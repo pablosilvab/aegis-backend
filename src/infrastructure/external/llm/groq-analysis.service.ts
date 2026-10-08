@@ -43,23 +43,9 @@ export class GroqAnalysisService implements IAnalysisService {
         this.logger.log('⚠️ RAG NO ACTIVO: No hay análisis anteriores');
       }
 
-      const response = await this.client.chat.completions.create({
-        model: this.config.model,
-        messages: [
-          {
-            role: 'system',
-            content:
-              'Eres un analista experto. Responde ÚNICAMENTE con JSON válido, sin texto adicional ni markdown.',
-          },
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-        temperature: this.config.temperature,
-        max_tokens: this.config.maxTokens,
-        response_format: { type: 'json_object' },
-      });
+      const response = await this.client.chat.completions.create(
+        this.buildCompletionRequest(prompt),
+      );
 
       const content = response.choices[0]?.message?.content;
 
@@ -82,6 +68,65 @@ export class GroqAnalysisService implements IAnalysisService {
 
       throw new Error(`Análisis con LLM falló: ${error.message}`);
     }
+  }
+
+  /**
+   * gpt-oss gasta tokens en razonar antes del JSON. Con json_object y el
+   * esfuerzo por defecto, la generación visible llega vacía y Groq responde
+   * json_validate_failed. El esquema estricto obliga la forma de la respuesta
+   * y reasoning_effort low deja cupo para el JSON.
+   */
+  private buildCompletionRequest(prompt: string) {
+    const supportsStrictSchema = this.modelSupportsStrictJsonSchema(this.config.model);
+
+    return {
+      model: this.config.model,
+      messages: [
+        {
+          role: 'system' as const,
+          content:
+            'Eres un analista experto. Responde ÚNICAMENTE con un objeto JSON que cumpla el esquema, sin texto adicional ni markdown.',
+        },
+        {
+          role: 'user' as const,
+          content: prompt,
+        },
+      ],
+      temperature: this.config.temperature,
+      max_tokens: this.config.maxTokens,
+      response_format: supportsStrictSchema
+        ? {
+            type: 'json_schema' as const,
+            json_schema: {
+              name: 'task_analysis',
+              strict: true,
+              schema: {
+                type: 'object',
+                additionalProperties: false,
+                properties: {
+                  status: {
+                    type: 'string',
+                    enum: ['on_track', 'at_risk', 'blocked', 'in_progress'],
+                  },
+                  confidenceLevel: { type: 'integer' },
+                  reason: { type: 'string' },
+                  recommendation: { type: 'string' },
+                },
+                required: ['status', 'confidenceLevel', 'reason', 'recommendation'],
+              },
+            },
+          }
+        : { type: 'json_object' as const },
+      ...(supportsStrictSchema ? { reasoning_effort: 'low' as const } : {}),
+    };
+  }
+
+  private modelSupportsStrictJsonSchema(model: string): boolean {
+    return [
+      'openai/gpt-oss-20b',
+      'openai/gpt-oss-120b',
+      'qwen/qwen3.8-27b',
+    ].includes(model);
   }
 
   private parseAndValidateResponse(content: string): AnalysisOutput {
